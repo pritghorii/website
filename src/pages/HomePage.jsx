@@ -16,8 +16,8 @@ const HomePage = () => {
   }, []);
 
   const initializeProducts = () => {
-    const existingProducts = localStorage.getItem('ecommerce_products');
-    if (existingProducts) {
+    // const existingProducts = localStorage.getItem('ecommerce_products');
+    
       const initialProducts = [
         {
           id: '1',
@@ -185,8 +185,6 @@ const HomePage = () => {
           stock: 25,
         },
       ];
-      localStorage.setItem('ecommerce_products', JSON.stringify(initialProducts));
-    }
   };
 
   const loadProducts = () => {
