@@ -188,7 +188,7 @@ const HomePage = () => {
   };
 
   const loadProducts = () => {
-    const storedProducts = JSON.parse(localStorage.getItem('ecommerce_products') || '[]');
+    const storedProducts = JSON.parse(localStorage.getItem('ecommerce_products') || initialProducts);
     setProducts(storedProducts.slice(0, 6));
   };
 
