@@ -25,7 +25,7 @@ const HomePage = () => {
           description: 'Essential organic cotton tee with premium fit',
           price: 59,
           category: 'Tops',
-          images: ['https://res.cloudinary.com/dssrbwsum/image/upload/v1770795223/image1_gd1xsi.jpg'],
+          images: ['https://res.cloudinary.com/dssrbwsum/image/upload/v1770794362/main-sample.png'],
           sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
           colors: ['White', 'Black', 'Beige'],
           stock: 1,
