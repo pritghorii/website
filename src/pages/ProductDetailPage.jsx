@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Minus, Plus, ShoppingCart } from 'lucide-react';
+import { Minus, Plus, ShoppingCart, Share2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { products, getProductById } from '@/data/products';
 
@@ -31,9 +31,9 @@ const ProductDetailPage = () => {
       setSelectedImage(0);
       setQuantity(1);
 
-      // Load related products (same category)
+      // Load related products (excluding current product)
       const related = products
-        .filter(p => p.category === foundProduct.category && p.id !== foundProduct.id)
+        .filter(p => p.id !== foundProduct.id)
         .slice(0, 4);
       setRelatedProducts(related);
     } else {
@@ -75,6 +75,26 @@ const ProductDetailPage = () => {
       title: 'Added to Cart',
       description: `${product.name} has been added to your cart.`,
     });
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product.name,
+          text: product.description,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.log('Error sharing:', error);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: 'Link Copied',
+        description: 'Product link copied to clipboard.',
+      });
+    }
   };
 
   if (!product) {
@@ -129,7 +149,6 @@ const ProductDetailPage = () => {
 
             {/* Product Info */}
             <div>
-              <p className="text-sm text-gray-500 mb-2">{product.category}</p>
               <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
               <p className="text-3xl font-semibold mb-6">${product.price}</p>
               <p className="text-gray-600 mb-8 leading-relaxed">{product.description}</p>
@@ -143,8 +162,8 @@ const ProductDetailPage = () => {
                       key={size}
                       onClick={() => setSelectedSize(size)}
                       className={`px-6 py-3 border-2 rounded transition-colors ${selectedSize === size
-                          ? 'border-black bg-black text-white'
-                          : 'border-gray-300 hover:border-black'
+                        ? 'border-black bg-black text-white'
+                        : 'border-gray-300 hover:border-black'
                         }`}
                     >
                       {size}
@@ -162,8 +181,8 @@ const ProductDetailPage = () => {
                       key={color}
                       onClick={() => setSelectedColor(color)}
                       className={`px-6 py-3 border-2 rounded transition-colors ${selectedColor === color
-                          ? 'border-black bg-black text-white'
-                          : 'border-gray-300 hover:border-black'
+                        ? 'border-black bg-black text-white'
+                        : 'border-gray-300 hover:border-black'
                         }`}
                     >
                       {color}
@@ -205,6 +224,15 @@ const ProductDetailPage = () => {
               >
                 <ShoppingCart className="h-5 w-5" />
                 Add to Cart
+              </button>
+
+              {/* Share Button */}
+              <button
+                onClick={handleShare}
+                className="w-full flex items-center justify-center gap-2 mt-4 px-8 py-4 border border-black text-black rounded font-semibold hover:bg-gray-50 transition-colors"
+              >
+                <Share2 className="h-5 w-5" />
+                Share Product
               </button>
             </div>
           </div>

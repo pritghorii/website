@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Filter, X } from 'lucide-react';
@@ -8,25 +8,29 @@ import { Slider } from '@/components/ui/slider';
 import { products } from '@/data/products';
 
 const ShopPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const collectionParam = searchParams.get('collection');
   const [filteredProducts, setFilteredProducts] = useState(products);
-  const [selectedCategory, setSelectedCategory] = useState('All');
+
   const [priceRange, setPriceRange] = useState([0, 300]);
   const [sortBy, setSortBy] = useState('newest');
   const [showFilters, setShowFilters] = useState(false);
 
-  const categories = ['All', 'Tops', 'Bottoms', 'Outerwear', 'Accessories'];
+
 
   useEffect(() => {
     applyFilters();
-  }, [selectedCategory, priceRange, sortBy]);
+  }, [priceRange, sortBy, collectionParam]);
 
   const applyFilters = () => {
     let filtered = [...products];
 
-    // Category filter
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter(p => p.category === selectedCategory);
+    // Collection filter
+    if (collectionParam) {
+      filtered = filtered.filter(p => p.collections?.includes(collectionParam));
     }
+
+
 
     // Price range filter
     filtered = filtered.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
@@ -50,23 +54,7 @@ const ShopPage = () => {
 
   const FilterSidebar = () => (
     <div className="space-y-8">
-      <div>
-        <h3 className="font-semibold mb-4">Category</h3>
-        <div className="space-y-2">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`block w-full text-left px-4 py-2 rounded transition-colors ${selectedCategory === category
-                  ? 'bg-black text-white'
-                  : 'bg-gray-100 hover:bg-gray-200'
-                }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-      </div>
+
 
       <div>
         <h3 className="font-semibold mb-4">Price Range</h3>
@@ -113,7 +101,9 @@ const ShopPage = () => {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-4">Shop All</h1>
+            <h1 className="text-4xl font-bold mb-4">
+              {collectionParam ? `${collectionParam} Collection` : 'Shop All'}
+            </h1>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <p className="text-gray-600">
                 {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
@@ -182,8 +172,8 @@ const ShopPage = () => {
                   <p className="text-gray-600 mb-4">No products found matching your criteria.</p>
                   <button
                     onClick={() => {
-                      setSelectedCategory('All');
                       setPriceRange([0, 300]);
+                      setSearchParams({});
                     }}
                     className="text-black underline hover:no-underline"
                   >
@@ -213,7 +203,6 @@ const ShopPage = () => {
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">{product.category}</p>
                           <h3 className="font-semibold mb-1">{product.name}</h3>
                           <p className="text-gray-600">${product.price}</p>
                         </div>

@@ -105,7 +105,7 @@ const HomePage = () => {
               {collections.map((collection, index) => (
                 <motion.div key={index} variants={itemVariants}>
                   <Link
-                    to="/shop"
+                    to={`/shop?collection=${encodeURIComponent(collection.title)}`}
                     className="group block relative overflow-hidden rounded-lg aspect-square"
                   >
                     <img
