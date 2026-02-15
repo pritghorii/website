@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Minus, Plus, ShoppingCart } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { products, getProductById } from '@/data/products';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -15,187 +16,20 @@ const ProductDetailPage = () => {
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadProduct();
   }, [id]);
 
   const loadProduct = () => {
-    setLoading(true);
-    const products = [
-        {
-          id: '1',
-          name: 'Classic White T-Shirt',
-          description: 'Essential organic cotton tee with premium fit',
-          price: 59,
-          category: 'Tops',
-          images: ['https://res.cloudinary.com/dssrbwsum/image/upload/v1770794362/main-sample.png'],
-          sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-          colors: ['White', 'Black', 'Beige'],
-          stock: 1,
-        },
-        {
-          id: '2',
-          name: 'Minimalist Black Jacket',
-          description: 'Sleek lightweight jacket for any occasion',
-          price: 249,
-          category: 'Outerwear',
-          images: ['https://res.cloudinary.com/dssrbwsum/image/upload/v1770795219/IMG_7092_z3o26o.jpg'],
-          sizes: ['S', 'M', 'L', 'XL'],
-          colors: ['Black', 'Navy'],
-          stock: 30,
-        },
-        {
-          id: '3',
-          name: 'Beige Trench Coat',
-          description: 'Timeless double-breasted design',
-          price: 299,
-          category: 'Outerwear',
-          images: ['https://res.cloudinary.com/dssrbwsum/image/upload/v1770795219/IMG_7092_z3o26o.jpg'],
-          sizes: ['S', 'M', 'L', 'XL'],
-          colors: ['Beige', 'Black'],
-          stock: 25,
-        },
-        {
-          id: '4',
-          name: 'Navy Wool Sweater',
-          description: 'Premium merino wool construction',
-          price: 139,
-          category: 'Tops',
-          images: ['https://images.unsplash.com/photo-1469301749421-01a2285f55c7'],
-          sizes: ['S', 'M', 'L', 'XL'],
-          colors: ['Navy', 'Black', 'Beige'],
-          stock: 40,
-        },
-        {
-          id: '5',
-          name: 'Premium White Hoodie',
-          description: 'Heavyweight cotton blend comfort',
-          price: 119,
-          category: 'Tops',
-          images: ['https://images.unsplash.com/photo-1632065509860-4fbcfc89ed7c'],
-          sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-          colors: ['White', 'Black', 'Beige'],
-          stock: 45,
-        },
-        {
-          id: '6',
-          name: 'Essential Black Pants',
-          description: 'Tailored fit for modern elegance',
-          price: 129,
-          category: 'Bottoms',
-          images: ['https://images.unsplash.com/photo-1583932387999-dcc7fb40bc40'],
-          sizes: ['28', '30', '32', '34', '36'],
-          colors: ['Black', 'Navy'],
-          stock: 35,
-        },
-        {
-          id: '7',
-          name: 'Camel Overcoat',
-          description: 'Luxurious wool blend outerwear',
-          price: 259,
-          category: 'Outerwear',
-          images: ['https://images.unsplash.com/photo-1544745342-2cc3cbce0066'],
-          sizes: ['S', 'M', 'L', 'XL'],
-          colors: ['Beige', 'Black'],
-          stock: 20,
-        },
-        {
-          id: '8',
-          name: 'Structured Blazer',
-          description: 'Sharp silhouette for professional settings',
-          price: 279,
-          category: 'Outerwear',
-          images: ['https://images.unsplash.com/photo-1693397136884-91bae40e96ae'],
-          sizes: ['S', 'M', 'L', 'XL'],
-          colors: ['Black', 'Navy'],
-          stock: 28,
-        },
-        {
-          id: '9',
-          name: 'Essential Black T-Shirt',
-          description: 'Wardrobe staple in premium cotton',
-          price: 59,
-          category: 'Tops',
-          images: ['https://images.unsplash.com/photo-1641236210747-48bc43e4517f'],
-          sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-          colors: ['Black', 'White', 'Navy'],
-          stock: 60,
-        },
-        {
-          id: '10',
-          name: 'Relaxed Fit Chinos',
-          description: 'Comfortable everyday trousers',
-          price: 99,
-          category: 'Bottoms',
-          images: ['https://images.unsplash.com/photo-1583932387999-dcc7fb40bc40'],
-          sizes: ['28', '30', '32', '34', '36'],
-          colors: ['Beige', 'Navy', 'Black'],
-          stock: 42,
-        },
-        {
-          id: '11',
-          name: 'Wide Leg Pants',
-          description: 'Contemporary silhouette with comfort',
-          price: 119,
-          category: 'Bottoms',
-          images: ['https://images.unsplash.com/photo-1583932387999-dcc7fb40bc40'],
-          sizes: ['28', '30', '32', '34', '36'],
-          colors: ['Black', 'Beige'],
-          stock: 33,
-        },
-        {
-          id: '12',
-          name: 'Leather Crossbody Bag',
-          description: 'Handcrafted Italian leather',
-          price: 159,
-          category: 'Accessories',
-          images: ['https://images.unsplash.com/photo-1693397136884-91bae40e96ae'],
-          sizes: ['One Size'],
-          colors: ['Black', 'Beige'],
-          stock: 18,
-        },
-        {
-          id: '13',
-          name: 'Structured Tote',
-          description: 'Spacious leather carryall',
-          price: 189,
-          category: 'Accessories',
-          images: ['https://images.unsplash.com/photo-1693397136884-91bae40e96ae'],
-          sizes: ['One Size'],
-          colors: ['Black', 'Beige'],
-          stock: 22,
-        },
-        {
-          id: '14',
-          name: 'Minimalist Backpack',
-          description: 'Modern functionality meets style',
-          price: 179,
-          category: 'Accessories',
-          images: ['https://images.unsplash.com/photo-1693397136884-91bae40e96ae'],
-          sizes: ['One Size'],
-          colors: ['Black', 'Navy'],
-          stock: 25,
-        },
-        {
-          id: '15',
-          name: 'Minimalist test',
-          description: 'Modern functionality meets style',
-          price: 179,
-          category: 'Accessories',
-          images: ['https://images.unsplash.com/photo-1693397136884-91bae40e96ae'],
-          sizes: ['One Size'],
-          colors: ['Black', 'Navy'],
-          stock: 25,
-        },
-      ];
-    const foundProduct = products.find(p => p.id === id);
+    const foundProduct = getProductById(id);
 
     if (foundProduct) {
       setProduct(foundProduct);
       setSelectedSize(foundProduct.sizes[0]);
       setSelectedColor(foundProduct.colors[0]);
+      setSelectedImage(0);
+      setQuantity(1);
 
       // Load related products (same category)
       const related = products
@@ -205,7 +39,6 @@ const ProductDetailPage = () => {
     } else {
       navigate('/shop');
     }
-    setLoading(false);
   };
 
   const addToCart = () => {
@@ -219,7 +52,7 @@ const ProductDetailPage = () => {
     }
 
     const cart = JSON.parse(localStorage.getItem('ecommerce_cart') || '{"items":[]}');
-    
+
     const existingItemIndex = cart.items.findIndex(
       item => item.productId === product.id && item.size === selectedSize && item.color === selectedColor
     );
@@ -244,16 +77,12 @@ const ProductDetailPage = () => {
     });
   };
 
-  if (loading) {
+  if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
       </div>
     );
-  }
-
-  if (!product) {
-    return null;
   }
 
   return (
@@ -288,9 +117,8 @@ const ProductDetailPage = () => {
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`aspect-square w-20 rounded-lg overflow-hidden border-2 transition-colors ${
-                        selectedImage === index ? 'border-black' : 'border-transparent'
-                      }`}
+                      className={`aspect-square w-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-black' : 'border-transparent'
+                        }`}
                     >
                       <img src={image} alt={`${product.name} ${index + 1}`} className="w-full h-full object-cover" />
                     </button>
@@ -314,11 +142,10 @@ const ProductDetailPage = () => {
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`px-6 py-3 border-2 rounded transition-colors ${
-                        selectedSize === size
+                      className={`px-6 py-3 border-2 rounded transition-colors ${selectedSize === size
                           ? 'border-black bg-black text-white'
                           : 'border-gray-300 hover:border-black'
-                      }`}
+                        }`}
                     >
                       {size}
                     </button>
@@ -334,11 +161,10 @@ const ProductDetailPage = () => {
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`px-6 py-3 border-2 rounded transition-colors ${
-                        selectedColor === color
+                      className={`px-6 py-3 border-2 rounded transition-colors ${selectedColor === color
                           ? 'border-black bg-black text-white'
                           : 'border-gray-300 hover:border-black'
-                      }`}
+                        }`}
                     >
                       {color}
                     </button>
