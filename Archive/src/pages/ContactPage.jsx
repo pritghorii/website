@@ -44,8 +44,8 @@ const ContactPage = () => {
   return (
     <>
       <Helmet>
-        <title>Contact Us - MINIMAL</title>
-        <meta name="description" content="Get in touch with MINIMAL. We're here to help with any questions about our products or services." />
+        <title>Contact Us - VRUDHAM</title>
+        <meta name="description" content="Get in touch with VRUDHAM. We're here to help with any questions about our products or services." />
       </Helmet>
 
       <div className="min-h-screen py-12 px-6">
@@ -145,7 +145,7 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">Email</h3>
-                    <p className="text-gray-600">support@minimal.com</p>
+                    <p className="text-gray-600">support@vrudham.com</p>
                   </div>
                 </div>
 

@@ -1,17 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { products, collections, heroImage } from '@/data/products';
+import { products as staticProducts, collections, heroImage } from '@/data/products';
+import { fetchProducts } from '@/lib/supabaseClient';
 
 const HomePage = () => {
   const [email, setEmail] = useState('');
   const { toast } = useToast();
 
+  const [productsList, setProductsList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts()
+      .then(data => setProductsList(data || []))
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
+
   // Show first 6 products as "New Arrivals"
-  const featuredProducts = products.slice(0, 6);
+  const featuredProducts = productsList.slice(0, 6);
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
@@ -42,8 +53,8 @@ const HomePage = () => {
   return (
     <>
       <Helmet>
-        <title>MINIMAL - Premium Minimalist Fashion</title>
-        <meta name="description" content="Discover premium minimalist fashion for the modern individual. Shop timeless pieces crafted with quality and style." />
+        <title>VRUDHAM - Premium Fashion Store</title>
+        <meta name="description" content="Discover premium fashion for the modern individual at VRUDHAM. Shop timeless pieces crafted with quality and style." />
       </Helmet>
 
       <div className="min-h-screen">
@@ -68,7 +79,7 @@ const HomePage = () => {
               Elevate Your Style
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-gray-200 max-w-2xl mx-auto">
-              Premium minimalist fashion for the modern individual
+              Premium fashion for the modern individual
             </p>
             <Link
               to="/shop"
@@ -149,7 +160,11 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
             >
-              {featuredProducts.map((product) => (
+              {loading ? (
+                Array(3).fill(0).map((_, i) => (
+                  <div key={i} className="aspect-square bg-white/5 rounded-lg animate-pulse" />
+                ))
+              ) : featuredProducts.map((product) => (
                 <motion.div key={product.id} variants={itemVariants}>
                   <Link
                     to={`/product/${product.id}`}

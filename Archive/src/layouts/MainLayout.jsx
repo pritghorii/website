@@ -6,7 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 
 function MainLayout() {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950 transition-colors duration-300">
       <Header />
       <main className="flex-1">
         <Outlet />

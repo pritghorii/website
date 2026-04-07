@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import ScrollToTop from '@/components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import MainLayout from '@/layouts/MainLayout';
@@ -12,13 +13,29 @@ import LoginPage from '@/pages/LoginPage';
 import SignupPage from '@/pages/SignupPage';
 import AccountPage from '@/pages/AccountPage';
 import ContactPage from '@/pages/ContactPage';
+import AdminLoginPage from '@/pages/AdminLoginPage';
+import AdminDashboardPage from '@/pages/AdminDashboardPage';
+import AdminProductsPage from '@/pages/admin/AdminProductsPage';
+import AdminOrdersPage from '@/pages/admin/AdminOrdersPage';
+import AdminCustomersPage from '@/pages/admin/AdminCustomersPage';
+import AdminAnalyticsPage from '@/pages/admin/AdminAnalyticsPage';
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ScrollToTop />
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <ScrollToTop />
         <Routes>
+          {/* Admin routes — standalone, no store header/footer */}
+          <Route path="/admin" element={<AdminLoginPage />} />
+          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+          <Route path="/admin/products" element={<AdminProductsPage />} />
+          <Route path="/admin/orders" element={<AdminOrdersPage />} />
+          <Route path="/admin/customers" element={<AdminCustomersPage />} />
+          <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+
+          {/* Store routes */}
           <Route path="/" element={<MainLayout />}>
             <Route index element={<HomePage />} />
             <Route path="shop" element={<ShopPage />} />
@@ -37,8 +54,9 @@ function App() {
             />
           </Route>
         </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

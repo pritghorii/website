@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '@/contexts/AuthContext';
-import { Package, User, LogOut } from 'lucide-react';
+import { Package, User, LogOut, Clock } from 'lucide-react';
+import { fetchOrders } from '@/lib/supabaseClient';
 
 const AccountPage = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -15,10 +16,20 @@ const AccountPage = () => {
     }
   }, [user]);
 
-  const loadOrders = () => {
-    const allOrders = JSON.parse(localStorage.getItem('ecommerce_orders') || '[]');
-    const userOrders = allOrders.filter(order => order.userId === user.id);
-    setOrders(userOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+  const loadOrders = async () => {
+    setLoading(true);
+    try {
+      const allOrders = await fetchOrders();
+      // Filter by user email or ID depending on how they are stored
+      const userOrders = allOrders.filter(order => 
+        order.user_id === user.id || order.customer_email === user.email
+      );
+      setOrders(userOrders);
+    } catch (err) {
+      console.error('Error loading orders:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -38,7 +49,7 @@ const AccountPage = () => {
         return 'bg-blue-100 text-blue-800';
       case 'shipped':
         return 'bg-purple-100 text-purple-800';
-      case 'delivered':
+      case 'Delivered':
         return 'bg-green-100 text-green-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -48,8 +59,8 @@ const AccountPage = () => {
   return (
     <>
       <Helmet>
-        <title>My Account - MINIMAL</title>
-        <meta name="description" content="Manage your MINIMAL account, view your orders and update your profile." />
+        <title>My Account - VRUDHAM</title>
+        <meta name="description" content="Manage your VRUDHAM account, view your orders and update your profile." />
       </Helmet>
 
       <div className="min-h-screen py-8 px-6">
@@ -129,28 +140,32 @@ const AccountPage = () => {
                       </span>
                     </div>
 
-                    <div className="space-y-2 mb-4">
+                    <div className="space-y-4 mb-4">
                       {order.items.map((item, index) => (
-                        <div key={index} className="flex gap-3">
+                        <div key={index} className="flex gap-4 p-3 rounded-lg bg-gray-50 border border-gray-100">
                           <img
-                            src={item.product.images[0]}
-                            alt={item.product.name}
-                            className="w-16 h-16 object-cover rounded"
+                            src={item.image || (item.product?.images?.[0])}
+                            alt={item.name}
+                            className="w-20 h-20 object-cover rounded-lg shadow-sm"
                           />
                           <div className="flex-1">
-                            <p className="font-medium">{item.product.name}</p>
-                            <p className="text-sm text-gray-600">
-                              Size: {item.size} | Color: {item.color} | Qty: {item.quantity}
+                            <p className="font-bold text-gray-900">{item.name}</p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Size: {item.size} | Color: {item.color}
                             </p>
+                            <p className="text-sm font-medium text-indigo-600 mt-1">Qty: {item.quantity}</p>
                           </div>
-                          <p className="font-semibold">${item.product.price * item.quantity}</p>
+                          <div className="text-right">
+                            <p className="font-bold text-gray-900">₹{item.price * item.quantity}</p>
+                            <p className="text-xs text-gray-400">₹{item.price} / unit</p>
+                          </div>
                         </div>
                       ))}
                     </div>
 
-                    <div className="border-t pt-4 flex justify-between items-center">
-                      <span className="font-semibold">Total</span>
-                      <span className="text-xl font-bold">${order.total.toFixed(2)}</span>
+                    <div className="border-t border-gray-200 pt-4 flex justify-between items-center">
+                      <span className="font-semibold text-gray-600">Total Amount</span>
+                      <span className="text-2xl font-bold text-indigo-600">₹{order.total}</span>
                     </div>
                   </div>
                 ))}

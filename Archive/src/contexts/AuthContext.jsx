@@ -121,6 +121,71 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const signInWithGoogle = async () => {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin },
+      });
+      if (error) throw error;
+      return data;
+    } else {
+      return _mockSocialLogin('google');
+    }
+  };
+
+  const signInWithFacebook = async () => {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: { redirectTo: window.location.origin },
+      });
+      if (error) throw error;
+      return data;
+    } else {
+      return _mockSocialLogin('facebook');
+    }
+  };
+
+  // Internal helper: creates a demo user for the given provider and persists to localStorage.
+  // Returns a Promise so callers can await it and navigate only after state is flushed.
+  const _mockSocialLogin = (provider) => {
+    return new Promise((resolve) => {
+      const stored = JSON.parse(localStorage.getItem('ecommerce_users') || '[]');
+      const providerEmail = `demo.${provider}@vrudham.local`;
+
+      // Re-use existing mock account for this provider so the user stays consistent
+      let existing = stored.find(u => u.provider === provider);
+
+      if (!existing) {
+        existing = {
+          id: `${provider}_${Date.now().toString(36)}`,
+          email: providerEmail,
+          provider,
+          name: provider === 'google' ? 'Google User' : 'Facebook User',
+          avatar: provider === 'google'
+            ? 'https://lh3.googleusercontent.com/a/default-user=s96-c'
+            : 'https://graph.facebook.com/me/picture?type=square',
+          created_at: new Date().toISOString(),
+        };
+        stored.push(existing);
+        localStorage.setItem('ecommerce_users', JSON.stringify(stored));
+      }
+
+      const session = {
+        id: existing.id,
+        email: existing.email,
+        name: existing.name,
+        provider: existing.provider,
+        avatar: existing.avatar,
+      };
+
+      localStorage.setItem('ecommerce_user', JSON.stringify(session));
+      setUser(session);
+      resolve({ user: session });
+    });
+  };
+
   const signOut = async () => {
     if (isSupabaseConfigured()) {
       const { error } = await supabase.auth.signOut();
@@ -137,6 +202,8 @@ export const AuthProvider = ({ children }) => {
     loading,
     signUp,
     signIn,
+    signInWithGoogle,
+    signInWithFacebook,
     signOut,
   };
 

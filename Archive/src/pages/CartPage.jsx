@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
-import { getProductById } from '@/data/products';
+import { fetchProductById, createOrder } from '@/lib/supabaseClient';
 
 const CartPage = () => {
   const { user } = useAuth();
@@ -17,20 +17,29 @@ const CartPage = () => {
     loadCart();
   }, []);
 
-  const loadCart = () => {
+  const loadCart = async () => {
     setLoading(true);
-    const cart = JSON.parse(localStorage.getItem('ecommerce_cart') || '{"items":[]}');
+    try {
+      const cart = JSON.parse(localStorage.getItem('ecommerce_cart') || '{"items":[]}');
 
-    const itemsWithDetails = cart.items.map(item => {
-      const product = getProductById(item.productId);
-      return {
-        ...item,
-        product,
-      };
-    }).filter(item => item.product); // Filter out items whose product no longer exists
+      const itemsWithDetails = await Promise.all(
+        cart.items.map(async (item) => {
+          try {
+            const product = await fetchProductById(item.productId);
+            return { ...item, product };
+          } catch (err) {
+            console.error(`Error fetching product ${item.productId}:`, err);
+            return { ...item, product: null };
+          }
+        })
+      );
 
-    setCartItems(itemsWithDetails);
-    setLoading(false);
+      setCartItems(itemsWithDetails.filter((item) => item.product));
+    } catch (err) {
+      console.error('Error loading cart:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateQuantity = (index, newQuantity) => {
@@ -56,36 +65,53 @@ const CartPage = () => {
     });
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!user) {
       navigate('/login', { state: { from: '/cart' } });
       return;
     }
 
-    // Create order
-    const orders = JSON.parse(localStorage.getItem('ecommerce_orders') || '[]');
-    const newOrder = {
-      id: Math.random().toString(36).substr(2, 9),
-      userId: user.id,
-      items: cartItems,
-      total: totalWithTax,
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      // Create order in Supabase
+      const newOrder = {
+        user_id: user.id || null, // Handle both Supabase and localStorage user cases
+        customer_name: user.email?.split('@')[0] || 'Customer',
+        customer_email: user.email || '',
+        items: cartItems.map(item => ({
+          id: item.product.id,
+          name: item.product.name,
+          price: item.product.price,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color,
+          image: item.product.images?.[0]
+        })),
+        item_count: cartItems.reduce((sum, item) => sum + item.quantity, 0),
+        total: totalWithTax,
+        status: 'Pending',
+        address: 'Standard Shipping Address', // In a real app, this would be from a form
+      };
 
-    orders.push(newOrder);
-    localStorage.setItem('ecommerce_orders', JSON.stringify(orders));
+      await createOrder(newOrder);
 
-    // Clear cart
-    localStorage.setItem('ecommerce_cart', JSON.stringify({ items: [] }));
-    window.dispatchEvent(new Event('cartUpdated'));
+      // Clear cart
+      localStorage.setItem('ecommerce_cart', JSON.stringify({ items: [] }));
+      window.dispatchEvent(new Event('cartUpdated'));
 
-    toast({
-      title: 'Order Placed!',
-      description: 'Your order has been successfully placed.',
-    });
+      toast({
+        title: 'Order Placed!',
+        description: 'Your order has been successfully placed and is visible in your account.',
+      });
 
-    navigate('/account');
+      navigate('/account');
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast({
+        title: 'Checkout Failed',
+        description: 'There was an error placing your order. Please try again.',
+        variant: 'destructive'
+      });
+    }
   };
 
   const subtotal = cartItems.reduce((sum, item) => {
@@ -107,8 +133,8 @@ const CartPage = () => {
   return (
     <>
       <Helmet>
-        <title>Shopping Cart - MINIMAL</title>
-        <meta name="description" content="Review your shopping cart and proceed to checkout." />
+        <title>Shopping Cart - VRUDHAM</title>
+        <meta name="description" content="Review your shopping cart and proceed to checkout at VRUDHAM." />
       </Helmet>
 
       <div className="min-h-screen py-8 px-6">
@@ -148,7 +174,7 @@ const CartPage = () => {
                       <p className="text-sm text-gray-600 mb-2">
                         Size: {item.size} | Color: {item.color}
                       </p>
-                      <p className="font-semibold">${item.product.price}</p>
+                      <p className="font-semibold">₹{item.product.price}</p>
                     </div>
 
                     <div className="flex flex-col items-end justify-between">
@@ -200,7 +226,7 @@ const CartPage = () => {
                     <div className="border-t pt-3">
                       <div className="flex justify-between text-lg">
                         <span className="font-bold">Total</span>
-                        <span className="font-bold">${totalWithTax.toFixed(2)}</span>
+                        <span className="font-bold">₹{totalWithTax.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>

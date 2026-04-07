@@ -5,25 +5,40 @@ import { motion } from 'framer-motion';
 import { Filter, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { products } from '@/data/products';
+import { products as staticProducts } from '@/data/products';
+import { fetchProducts } from '@/lib/supabaseClient';
 
 const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const collectionParam = searchParams.get('collection');
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [productsList, setProductsList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [priceRange, setPriceRange] = useState([0, 300]);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await fetchProducts();
+        setProductsList(data || []);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [priceRange, setPriceRange] = useState([0, 5000]);
   const [sortBy, setSortBy] = useState('newest');
   const [showFilters, setShowFilters] = useState(false);
 
-
-
   useEffect(() => {
     applyFilters();
-  }, [priceRange, sortBy, collectionParam]);
+  }, [productsList, collectionParam, priceRange, sortBy]);
 
   const applyFilters = () => {
-    let filtered = [...products];
+    let filtered = [...productsList];
 
     // Collection filter
     if (collectionParam) {
@@ -62,13 +77,13 @@ const ShopPage = () => {
           <Slider
             value={priceRange}
             onValueChange={setPriceRange}
-            max={300}
-            step={10}
+            max={10000}
+            step={50}
             className="mb-4"
           />
           <div className="flex justify-between text-sm text-gray-600">
-            <span>${priceRange[0]}</span>
-            <span>${priceRange[1]}</span>
+            <span>₹{priceRange[0]}</span>
+            <span>₹{priceRange[1]}</span>
           </div>
         </div>
       </div>
@@ -93,15 +108,15 @@ const ShopPage = () => {
   return (
     <>
       <Helmet>
-        <title>Shop - MINIMAL</title>
-        <meta name="description" content="Browse our collection of premium minimalist fashion. Find the perfect pieces to elevate your wardrobe." />
+        <title>Shop - VRUDHAM</title>
+        <meta name="description" content="Browse our collection of premium fashion at VRUDHAM. Find the perfect pieces to elevate your wardrobe." />
       </Helmet>
 
       <div className="min-h-screen py-8 px-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-4">
+            <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
               {collectionParam ? `${collectionParam} Collection` : 'Shop All'}
             </h1>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -167,7 +182,11 @@ const ShopPage = () => {
 
             {/* Product Grid */}
             <div className="flex-1">
-              {filteredProducts.length === 0 ? (
+              {loading ? (
+                <div className="flex items-center justify-center py-20">
+                  <div className="w-8 h-8 rounded-full border-2 border-black border-t-transparent animate-spin"></div>
+                </div>
+              ) : filteredProducts.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-gray-600 mb-4">No products found matching your criteria.</p>
                   <button
@@ -204,7 +223,7 @@ const ShopPage = () => {
                         </div>
                         <div>
                           <h3 className="font-semibold mb-1">{product.name}</h3>
-                          <p className="text-gray-600">${product.price}</p>
+                          <p className="text-gray-600">₹{product.price}</p>
                         </div>
                       </Link>
                     </motion.div>
