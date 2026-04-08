@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
+import { submitContactMessage } from '@/lib/supabaseClient';
 
 const ContactPage = () => {
   const { toast } = useToast();
@@ -25,8 +26,15 @@ const ContactPage = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      await submitContactMessage({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        status: 'unread',
+      });
+
       toast({
         title: 'Message Sent!',
         description: 'Thank you for contacting us. We\'ll get back to you soon.',
@@ -37,8 +45,16 @@ const ContactPage = () => {
         subject: '',
         message: '',
       });
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to send message. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -145,7 +161,7 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">Email</h3>
-                    <p className="text-gray-600">support@vrudham.com</p>
+                    <p className="text-gray-600">info@vrudham.com</p>
                   </div>
                 </div>
 
@@ -155,7 +171,7 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">Phone</h3>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
+                    <p className="text-gray-600">+91 98765 43210</p>
                   </div>
                 </div>
 
@@ -166,9 +182,9 @@ const ContactPage = () => {
                   <div>
                     <h3 className="font-semibold mb-1">Address</h3>
                     <p className="text-gray-600">
-                      123 Fashion Street<br />
-                      New York, NY 10001<br />
-                      United States
+                      123 Main Street<br />
+                      Mumbai, Maharashtra 400001<br />
+                      India
                     </p>
                   </div>
                 </div>

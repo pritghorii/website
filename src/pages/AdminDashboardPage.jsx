@@ -14,6 +14,7 @@ import {
   ArrowDownRight,
   BarChart3,
   Clock,
+  MessageSquare,
 } from 'lucide-react';
 import { fetchProducts, fetchOrders, fetchCustomers } from '@/lib/supabaseClient';
 
@@ -336,6 +337,7 @@ const AdminDashboardPage = () => {
               {[
                 { label: 'Add Product', icon: Package, color: 'from-indigo-500 to-blue-600', path: '/admin/products' },
                 { label: 'View Orders', icon: ShoppingCart, color: 'from-emerald-500 to-teal-600', path: '/admin/orders' },
+                { label: 'Messages', icon: MessageSquare, color: 'from-blue-500 to-cyan-600', path: '/admin/messages' },
                 { label: 'Customers', icon: Users, color: 'from-purple-500 to-pink-600', path: '/admin/customers' },
                 { label: 'Analytics', icon: BarChart3, color: 'from-amber-500 to-orange-600', path: '/admin/analytics' },
               ].map((action) => (

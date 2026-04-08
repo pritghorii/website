@@ -1,22 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Facebook, Twitter } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { Instagram } from 'lucide-react';
 
 const Footer = () => {
-  const [email, setEmail] = useState('');
-  const { toast } = useToast();
-
-  const handleNewsletterSubmit = (e) => {
-    e.preventDefault();
-    if (email) {
-      toast({
-        title: 'Success!',
-        description: 'Thank you for subscribing to our newsletter.',
-      });
-      setEmail('');
-    }
-  };
 
   const quickLinks = [
     { name: 'Shop', path: '/shop' },
@@ -24,15 +10,13 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { icon: Instagram, href: '#', label: 'Instagram' },
-    { icon: Facebook, href: '#', label: 'Facebook' },
-    { icon: Twitter, href: '#', label: 'Twitter' },
+    { icon: Instagram, href: 'https://www.instagram.com/vrudham_boutique?igsh=MXM1aTE4cmd3cHRxMA==', label: 'Instagram' },
   ];
 
   return (
     <footer className="bg-black text-white mt-auto">
       <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Company Description */}
           <div>
             <h3 className="text-xl font-bold mb-4">VRUDHAM</h3>
@@ -73,30 +57,6 @@ const Footer = () => {
                 </a>
               ))}
             </div>
-          </div>
-
-          {/* Newsletter */}
-          <div>
-            <h4 className="text-sm font-semibold mb-4 uppercase tracking-wider">Newsletter</h4>
-            <p className="text-gray-400 text-sm mb-3">
-              Subscribe for exclusive offers and updates.
-            </p>
-            <form onSubmit={handleNewsletterSubmit} className="flex flex-col space-y-2">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your email"
-                className="px-4 py-2 bg-white text-black rounded text-sm focus:outline-none focus:ring-2 focus:ring-white"
-                required
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 bg-white text-black rounded text-sm font-medium hover:bg-gray-200 transition-colors"
-              >
-                Subscribe
-              </button>
-            </form>
           </div>
         </div>
 

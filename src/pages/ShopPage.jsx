@@ -29,9 +29,21 @@ const ShopPage = () => {
   }, []);
 
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [maxPrice, setMaxPrice] = useState(10000);
   const [sortBy, setSortBy] = useState('newest');
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    const updatePriceBounds = () => {
+      if (!productsList.length) return;
+      const highestPrice = Math.max(...productsList.map((product) => product.price || 0));
+      setMaxPrice(highestPrice || 10000);
+      setPriceRange([0, highestPrice || 10000]);
+    };
+
+    updatePriceBounds();
+  }, [productsList]);
 
   useEffect(() => {
     applyFilters();
@@ -42,10 +54,13 @@ const ShopPage = () => {
 
     // Collection filter
     if (collectionParam) {
-      filtered = filtered.filter(p => p.collections?.includes(collectionParam));
+      const normalizedCollection = collectionParam.toLowerCase().trim();
+      filtered = filtered.filter((p) =>
+        p.collections?.some(
+          (collection) => collection?.toLowerCase().trim() === normalizedCollection
+        )
+      );
     }
-
-
 
     // Price range filter
     filtered = filtered.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
@@ -60,7 +75,7 @@ const ShopPage = () => {
         break;
       case 'newest':
       default:
-        // Already in newest order
+        filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
         break;
     }
 
@@ -77,7 +92,7 @@ const ShopPage = () => {
           <Slider
             value={priceRange}
             onValueChange={setPriceRange}
-            max={10000}
+            max={maxPrice}
             step={50}
             className="mb-4"
           />

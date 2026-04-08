@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
+import { supabase, isSupabaseConfigured, createCustomer, fetchCustomerByUserId } from '@/lib/supabaseClient';
 
 const AuthContext = createContext({});
 
@@ -16,24 +16,63 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if using Supabase or localStorage
-    if (isSupabaseConfigured()) {
-      initializeSupabaseAuth();
-    } else {
-      initializeLocalStorageAuth();
-    }
+    let cleanup;
+
+    const init = async () => {
+      if (isSupabaseConfigured()) {
+        cleanup = await initializeSupabaseAuth();
+      } else {
+        initializeLocalStorageAuth();
+      }
+    };
+
+    init();
+    return () => {
+      if (typeof cleanup === 'function') cleanup();
+    };
   }, []);
+
+  const loadUserProfile = async (sessionUser) => {
+    if (!sessionUser?.id) return null;
+
+    try {
+      const customer = await fetchCustomerByUserId(sessionUser.id);
+      if (!customer) return null;
+      return {
+        id: sessionUser.id,
+        email: sessionUser.email,
+        name: customer.name,
+      };
+    } catch (error) {
+      console.error('Error loading customer profile:', error);
+      return {
+        id: sessionUser.id,
+        email: sessionUser.email,
+      };
+    }
+  };
 
   const initializeSupabaseAuth = async () => {
     try {
       // Get initial session
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        const enrichedUser = await loadUserProfile(session.user);
+        setUser(enrichedUser);
+      } else {
+        setUser(null);
+      }
 
       // Listen for auth changes
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
-          setUser(session?.user ?? null);
+          if (session?.user) {
+            const enrichedUser = await loadUserProfile(session.user);
+            setUser(enrichedUser);
+          } else {
+            setUser(null);
+          }
         }
       );
 
@@ -61,13 +100,28 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   };
 
-  const signUp = async (email, password) => {
+  const signUp = async (name, email, password) => {
     if (isSupabaseConfigured()) {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
       if (error) throw error;
+
+      const userId = data?.user?.id ?? null;
+      if (userId) {
+        const customer = await createCustomer({
+          user_id: userId,
+          name,
+          email,
+        });
+
+        if (!customer?.id) {
+          await supabase.auth.signOut();
+          throw new Error('Unable to save account details. Please try again.');
+        }
+      }
+
       return data;
     } else {
       // localStorage fallback
@@ -82,11 +136,18 @@ export const AuthProvider = ({ children }) => {
         id: Math.random().toString(36).substr(2, 9),
         email,
         password, // In production, this would be hashed
+        name,
         created_at: new Date().toISOString(),
       };
 
       users.push(newUser);
       localStorage.setItem('ecommerce_users', JSON.stringify(users));
+
+      await createCustomer({
+        user_id: newUser.id,
+        name,
+        email,
+      });
 
       const userSession = { id: newUser.id, email: newUser.email };
       setUser(userSession);
@@ -103,7 +164,26 @@ export const AuthProvider = ({ children }) => {
         password,
       });
       if (error) throw error;
-      return data;
+
+      const authUser = data?.user ?? data?.session?.user;
+      if (!authUser?.id) {
+        throw new Error('Login failed. Please try again.');
+      }
+
+      const customer = await fetchCustomerByUserId(authUser.id);
+      if (!customer) {
+        await supabase.auth.signOut();
+        throw new Error('No account found. Please sign up first.');
+      }
+
+      const userSession = {
+        id: authUser.id,
+        email: authUser.email,
+        name: customer.name,
+      };
+      setUser(userSession);
+
+      return { user: userSession };
     } else {
       // localStorage fallback
       const users = JSON.parse(localStorage.getItem('ecommerce_users') || '[]');

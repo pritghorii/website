@@ -34,13 +34,13 @@ export const fetchProducts = async () => {
         const override = lsProds.find(l => l.id === p.id);
         return override || p;
       });
-    return [...merged, ...extra];
+    return [...merged, ...extra].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
   }
   try {
     const { data, error } = await supabase
       .from('products')
       .select('*')
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: false });
     if (error) throw error;
     return data && data.length > 0 ? data : staticProducts;
   } catch {
@@ -192,6 +192,43 @@ export const fetchCustomers = async () => {
   return data || [];
 };
 
+export const createCustomer = async (customer) => {
+  if (!supabase) {
+    const customers = JSON.parse(localStorage.getItem('ls_customers') || '[]');
+    const newCustomer = {
+      ...customer,
+      id: 'cust_' + Date.now().toString(36),
+      created_at: new Date().toISOString(),
+    };
+    customers.unshift(newCustomer);
+    localStorage.setItem('ls_customers', JSON.stringify(customers));
+    return newCustomer;
+  }
+
+  const { data, error } = await supabase
+    .from('customers')
+    .insert([customer])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const fetchCustomerByUserId = async (userId) => {
+  if (!supabase) {
+    const customers = JSON.parse(localStorage.getItem('ls_customers') || '[]');
+    return customers.find((customer) => customer.user_id === userId) || null;
+  }
+
+  const { data, error } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error) throw error;
+  return data || null;
+};
+
 // ── Cart ──────────────────────────────────────────────
 
 export const fetchCartItems = async (userId) => {
@@ -226,5 +263,67 @@ export const updateCartItem = async (id, quantity) => {
 
 export const removeCartItem = async (id) => {
   const { error } = await supabase.from('cart_items').delete().eq('id', id);
+  if (error) throw error;
+};
+
+// ── Contact Messages ────────────────────────────────────────────
+
+export const submitContactMessage = async (message) => {
+  if (!supabase) {
+    const newMessage = {
+      ...message,
+      id: 'msg_' + Date.now().toString(36),
+      created_at: new Date().toISOString(),
+      status: 'unread',
+    };
+    const messages = JSON.parse(localStorage.getItem('ls_contact_messages') || '[]');
+    messages.unshift(newMessage);
+    localStorage.setItem('ls_contact_messages', JSON.stringify(messages));
+    return newMessage;
+  }
+  const { data, error } = await supabase
+    .from('contact_messages')
+    .insert([message])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const fetchContactMessages = async () => {
+  if (!supabase) return JSON.parse(localStorage.getItem('ls_contact_messages') || '[]');
+  const { data, error } = await supabase
+    .from('contact_messages')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
+};
+
+export const updateContactMessageStatus = async (id, status) => {
+  if (!supabase) {
+    const messages = JSON.parse(localStorage.getItem('ls_contact_messages') || '[]');
+    const idx = messages.findIndex(m => m.id === id);
+    if (idx !== -1) messages[idx].status = status;
+    localStorage.setItem('ls_contact_messages', JSON.stringify(messages));
+    return messages[idx] || {};
+  }
+  const { data, error } = await supabase
+    .from('contact_messages')
+    .update({ status })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteContactMessage = async (id) => {
+  if (!supabase) {
+    const messages = JSON.parse(localStorage.getItem('ls_contact_messages') || '[]');
+    localStorage.setItem('ls_contact_messages', JSON.stringify(messages.filter(m => m.id !== id)));
+    return;
+  }
+  const { error } = await supabase.from('contact_messages').delete().eq('id', id);
   if (error) throw error;
 };

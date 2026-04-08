@@ -21,8 +21,22 @@ const HomePage = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  // Show first 6 products as "New Arrivals"
-  const featuredProducts = productsList.slice(0, 6);
+  const featuredProducts = [...productsList]
+    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+    .slice(0, 6);
+
+  const collectionsWithCount = collections.map((collection) => {
+    const count = productsList.filter((product) =>
+      product.collections?.some(
+        (item) => item?.toLowerCase().trim() === collection.title.toLowerCase().trim()
+      )
+    ).length;
+
+    return {
+      ...collection,
+      count,
+    };
+  });
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
@@ -113,7 +127,7 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
             >
-              {collections.map((collection, index) => (
+              {collectionsWithCount.map((collection, index) => (
                 <motion.div key={index} variants={itemVariants}>
                   <Link
                     to={`/shop?collection=${encodeURIComponent(collection.title)}`}
@@ -127,6 +141,9 @@ const HomePage = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6 text-white">
                       <h3 className="text-2xl font-bold mb-2">{collection.title}</h3>
                       <p className="text-sm text-gray-200 mb-3">{collection.description}</p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-gray-300 mb-4">
+                        {collection.count} product{collection.count === 1 ? '' : 's'}
+                      </p>
                       <span className="text-sm font-semibold group-hover:underline">
                         Explore →
                       </span>
@@ -183,7 +200,7 @@ const HomePage = () => {
                       </div>
                     </div>
                     <h3 className="font-semibold mb-1">{product.name}</h3>
-                    <p className="text-gray-600">${product.price}</p>
+                    <p className="text-gray-600">₹{product.price}</p>
                   </Link>
                 </motion.div>
               ))}
@@ -201,37 +218,6 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* Newsletter Section */}
-        <section className="py-20 px-6 bg-black text-white">
-          <div className="max-w-2xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-4xl font-bold mb-4">Stay Updated</h2>
-              <p className="text-gray-300 mb-8">
-                Subscribe to our newsletter for exclusive offers and early access to new collections
-              </p>
-              <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="flex-1 px-6 py-3 rounded bg-white text-black focus:outline-none focus:ring-2 focus:ring-white"
-                  required
-                />
-                <button
-                  type="submit"
-                  className="px-8 py-3 bg-white text-black rounded font-semibold hover:bg-gray-200 transition-colors"
-                >
-                  Subscribe
-                </button>
-              </form>
-            </motion.div>
-          </div>
-        </section>
       </div>
     </>
   );

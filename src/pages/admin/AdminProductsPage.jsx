@@ -322,10 +322,10 @@ const AdminProductsPage = () => {
                       className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
                     >
                       <option value="" className="bg-gray-900">Select category</option>
-                      <option value="Essentials" className="bg-gray-900">Essentials</option>
-                      <option value="Outerwear" className="bg-gray-900">Outerwear</option>
-                      <option value="Accessories" className="bg-gray-900">Accessories</option>
-                      <option value="Limited Edition" className="bg-gray-900">Limited Edition</option>
+                      <option value="Lahenga" className="bg-gray-900">Lahenga</option>
+                      <option value="Shervani" className="bg-gray-900">Shervani</option>
+                      <option value="Jodhpuri" className="bg-gray-900">Jodhpuri</option>
+                      <option value="Westren" className="bg-gray-900">Westren</option>
                     </select>
                   </div>
                   {/* Sizes & Colors */}

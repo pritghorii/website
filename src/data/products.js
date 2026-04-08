@@ -11,28 +11,28 @@ export const heroImage =
 
 export const collections = [
     {
-        title: 'Essentials',
-        description: 'Timeless pieces for everyday wear',
+        title: 'Lahenga',
+        description: 'Premium Bridal Lahenga',
         image:
-            'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&auto=format&fit=crop&q=80',
+            'https://res.cloudinary.com/dssrbwsum/image/upload/v1775675159/KA-5032_Wine-3_zoom_oeebft.jpg',
     },
     {
-        title: 'Outerwear',
-        description: 'Premium jackets and coats',
+        title: 'Shervani',
+        description: 'Premium Grooms Sherwani',
         image:
-            'https://images.unsplash.com/photo-1544745342-2cc3cbce0066?w=800&auto=format&fit=crop&q=80',
+            'https://res.cloudinary.com/dssrbwsum/image/upload/v1775675587/sony-4752_copy_rcudxt.jpg',
     },
     {
-        title: 'Accessories',
-        description: 'Complete your look',
+        title: 'Jodhpuri',
+        description: 'Royal Jodhpuri Suit',
         image:
-            'https://res.cloudinary.com/dssrbwsum/image/upload/v1770795219/IMG_7092_z3o26o.jpg',
+            'https://res.cloudinary.com/dssrbwsum/image/upload/v1775675242/beige-rayon-jodhpuri-suit-for-men-with-zardosi-embroidery-sg333500-1_hztirx.jpg',
     },
     {
-        title: 'Limited Edition',
-        description: 'Exclusive seasonal pieces',
+        title: 'Westren',
+        description: 'Classic westren Dress',
         image:
-            'https://res.cloudinary.com/dssrbwsum/image/upload/v1770795219/IMG_7092_z3o26o.jpg',
+            'https://res.cloudinary.com/dssrbwsum/image/upload/v1775675324/Maggie-Sottero-Verina-Ballgown-Wedding-Dress-26MK465A01-PROMO10-IV002-Uncropped_2x_q8xbri.webp',
     },
     
 
@@ -46,7 +46,7 @@ export const products = [
         price: 59,
 
         images: [
-            'https://res.cloudinary.com/dssrbwsum/image/upload/v1770794362/main-sample.png',
+            'https://i.pinimg.com/564x/21/ec/10/21ec10b27844f441f427460556299acf.jpg',
             'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&auto=format&fit=crop&q=80',
             'https://images.unsplash.com/photo-1503341455253-b2e72333dbdb?w=800&auto=format&fit=crop&q=80',
             'https://images.unsplash.com/photo-1503342394128-c104d54dba01?w=800&auto=format&fit=crop&q=80',

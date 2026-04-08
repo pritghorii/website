@@ -19,6 +19,7 @@ import AdminProductsPage from '@/pages/admin/AdminProductsPage';
 import AdminOrdersPage from '@/pages/admin/AdminOrdersPage';
 import AdminCustomersPage from '@/pages/admin/AdminCustomersPage';
 import AdminAnalyticsPage from '@/pages/admin/AdminAnalyticsPage';
+import AdminMessagesPage from '@/pages/admin/AdminMessagesPage';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="/admin/orders" element={<AdminOrdersPage />} />
           <Route path="/admin/customers" element={<AdminCustomersPage />} />
           <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+          <Route path="/admin/messages" element={<AdminMessagesPage />} />
 
           {/* Store routes */}
           <Route path="/" element={<MainLayout />}>
