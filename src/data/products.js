@@ -20,7 +20,7 @@ export const collections = [
         title: 'Shervani',
         description: 'Premium Grooms Sherwani',
         image:
-            'https://res.cloudinary.com/dssrbwsum/image/upload/v1775675587/sony-4752_copy_rcudxt.jpg',
+            'https://res.cloudinary.com/dssrbwsum/image/upload/v1775678232/embroidered-hand-and-thread-work-art-silk-sherwani-mens-wear-in-cream-277490-1000x1375_of1bnt.webp',
     },
     {
         title: 'Jodhpuri',
